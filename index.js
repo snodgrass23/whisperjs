@@ -143,11 +143,13 @@ Whisper.prototype.makeRequest = function(data, callback) {
         
         // res object
         var res = {
-          send:
-            function(props){
-              callback(null, props);
-            }
-          }
+          send:   function(props){
+                    callback(null, props);
+                  },
+          render: function() {
+                    callbacl(null, {}})
+                  } 
+        }
         
         // middleware iterator counter
         var currentMiddleware = 0;
