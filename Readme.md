@@ -19,7 +19,9 @@ To get started simply run the init method and pass it the server instance which 
 Then build your request object and pass it to the send method
 
     var Whisper = require('whisperjs');
+
     var request = { method: 'post', path: '/login', body: {username: "Jim", password: "password"} }
+
     Whisper.send(request, function(err, result) {
       callback(err, result);
     })
@@ -32,6 +34,7 @@ You can also send an array of request objects and pass it to the send method
       { method: 'post', path: '/login', body: {username: "Jim", password: "password"} },
       { method: 'get', path: '/posts/new'} }
     ];
+
     Whisper.send(request, function(err, result) {
       callback(err, result)
     })
@@ -48,6 +51,7 @@ The returned result will be an object containing all of results in the same orde
       { method: 'post', path: '/login', body: {username: "Jim", password: "password"}, sequence: "login" },
       { method: 'get', path: '/posts/new'}, "newposts" }
     ];
+    
     Whisper.send(request, function(err, result) {
       callback(err, result)
     })
