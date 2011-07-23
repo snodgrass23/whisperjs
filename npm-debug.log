@@ -1,0 +1,108 @@
+info it worked if it ends with ok
+verbose cli [ 'node', '/usr/local/bin/npm', 'adduser' ]
+info using npm@1.0.9-1
+info using node@v0.4.7
+verbose config file /Users/snodgrass23/.npmrc
+verbose config file /usr/local/etc/npmrc
+verbose before first PUT { name: 'snodgrass23',
+verbose before first PUT   salt: 'f1baf5f1-a1d3-487a-a00b-e5222252d664',
+verbose before first PUT   password_sha: 'e31b58fd3238364a0dc6b1249625c14b1c4f78bf',
+verbose before first PUT   email: 'snodgrass23@gmail.com',
+verbose before first PUT   _id: 'org.couchdb.user:snodgrass23',
+verbose before first PUT   type: 'user',
+verbose before first PUT   roles: [],
+verbose before first PUT   _rev: '1-0c12add5b0247247790d03bc8f71643b' }
+verbose PUT /-/user/org.couchdb.user:snodgrass23
+verbose raw, before any munging /-/user/org.couchdb.user:snodgrass23
+verbose url resolving [ 'http://registry.npmjs.org/',
+verbose url resolving   './-/user/org.couchdb.user:snodgrass23' ]
+verbose url resolved http://registry.npmjs.org/-/user/org.couchdb.user:snodgrass23
+verbose url parsed { protocol: 'http:',
+verbose url parsed   slashes: true,
+verbose url parsed   host: 'registry.npmjs.org',
+verbose url parsed   hostname: 'registry.npmjs.org',
+verbose url parsed   href: 'http://registry.npmjs.org/-/user/org.couchdb.user:snodgrass23',
+verbose url parsed   pathname: '/-/user/org.couchdb.user:snodgrass23' }
+silly writing json { name: 'snodgrass23',
+silly writing json   salt: 'f1baf5f1-a1d3-487a-a00b-e5222252d664',
+silly writing json   password_sha: 'e31b58fd3238364a0dc6b1249625c14b1c4f78bf',
+silly writing json   email: 'snodgrass23@gmail.com',
+silly writing json   _id: 'org.couchdb.user:snodgrass23',
+silly writing json   type: 'user',
+silly writing json   roles: [],
+silly writing json   _rev: '1-0c12add5b0247247790d03bc8f71643b' }
+verbose response http://registry.npmjs.org/-/user/org.couchdb.user:snodgrass23
+silly chunk {"error":"conflict","reason":"Document update conflict."}
+silly chunk 
+verbose adduser update existing user
+verbose GET /-/user/org.couchdb.user:snodgrass23
+verbose raw, before any munging /-/user/org.couchdb.user:snodgrass23
+verbose url resolving [ 'http://registry.npmjs.org/',
+verbose url resolving   './-/user/org.couchdb.user:snodgrass23' ]
+verbose url resolved http://registry.npmjs.org/-/user/org.couchdb.user:snodgrass23
+verbose url parsed { protocol: 'http:',
+verbose url parsed   slashes: true,
+verbose url parsed   host: 'registry.npmjs.org',
+verbose url parsed   hostname: 'registry.npmjs.org',
+verbose url parsed   href: 'http://registry.npmjs.org/-/user/org.couchdb.user:snodgrass23',
+verbose url parsed   pathname: '/-/user/org.couchdb.user:snodgrass23' }
+verbose response http://registry.npmjs.org/-/user/org.couchdb.user:snodgrass23
+silly chunk {"_id":"org.couchdb.user:snodgrass23","_rev":"1-0c12add5b0247247790d03bc8f71643b","name":"snodgrass23","salt":"2be6b67f-132e-41f1-a0fa-d3d8388bb426","password_sha":"ca1a6bc9203fa63bedb60934d1a53bf9b13aedeb","email":"snodgrass23@gmail.com","type":"user","roles":[]}
+silly chunk 
+verbose userobj { name: 'snodgrass23',
+verbose userobj   salt: 'f1baf5f1-a1d3-487a-a00b-e5222252d664',
+verbose userobj   password_sha: 'e31b58fd3238364a0dc6b1249625c14b1c4f78bf',
+verbose userobj   email: 'snodgrass23@gmail.com',
+verbose userobj   _id: 'org.couchdb.user:snodgrass23',
+verbose userobj   type: 'user',
+verbose userobj   roles: [],
+verbose userobj   _rev: '1-0c12add5b0247247790d03bc8f71643b' }
+verbose PUT /-/user/org.couchdb.user:snodgrass23/-rev/1-0c12add5b0247247790d03bc8f71643b
+verbose raw, before any munging /-/user/org.couchdb.user:snodgrass23/-rev/1-0c12add5b0247247790d03bc8f71643b
+verbose url resolving [ 'http://registry.npmjs.org/',
+verbose url resolving   './-/user/org.couchdb.user:snodgrass23/-rev/1-0c12add5b0247247790d03bc8f71643b' ]
+verbose url resolved http://registry.npmjs.org/-/user/org.couchdb.user:snodgrass23/-rev/1-0c12add5b0247247790d03bc8f71643b
+verbose url parsed { protocol: 'http:',
+verbose url parsed   slashes: true,
+verbose url parsed   host: 'registry.npmjs.org',
+verbose url parsed   hostname: 'registry.npmjs.org',
+verbose url parsed   href: 'http://registry.npmjs.org/-/user/org.couchdb.user:snodgrass23/-rev/1-0c12add5b0247247790d03bc8f71643b',
+verbose url parsed   pathname: '/-/user/org.couchdb.user:snodgrass23/-rev/1-0c12add5b0247247790d03bc8f71643b' }
+WARN Sending authorization over insecure channel.
+silly writing json { name: 'snodgrass23',
+silly writing json   salt: 'f1baf5f1-a1d3-487a-a00b-e5222252d664',
+silly writing json   password_sha: 'e31b58fd3238364a0dc6b1249625c14b1c4f78bf',
+silly writing json   email: 'snodgrass23@gmail.com',
+silly writing json   _id: 'org.couchdb.user:snodgrass23',
+silly writing json   type: 'user',
+silly writing json   roles: [],
+silly writing json   _rev: '1-0c12add5b0247247790d03bc8f71643b' }
+verbose response http://registry.npmjs.org/-/user/org.couchdb.user:snodgrass23/-rev/1-0c12add5b0247247790d03bc8f71643b
+silly chunk {"error":"unauthorized","reason":"Name or password is incorrect."}
+silly chunk 
+verbose adduser response 401
+ERR! adduser Error: unauthorized Name or password is incorrect.: -/user/org.couchdb.user:snodgrass23/-rev/1-0c12add5b0247247790d03bc8f71643b
+ERR! adduser     at IncomingMessage.<anonymous> (/usr/local/lib/node_modules/npm/lib/utils/npm-registry-client/request.js:177:16)
+ERR! adduser     at IncomingMessage.emit (events.js:81:20)
+ERR! adduser     at HTTPParser.onMessageComplete (http.js:133:23)
+ERR! adduser     at Socket.ondata (http.js:1213:22)
+ERR! adduser     at Socket._onReadable (net.js:681:27)
+ERR! adduser     at IOWatcher.onReadable [as callback] (net.js:177:10)
+ERR! Error: 401 Could not create user Error: unauthorized Name or password is incorrect.: -/user/org.couchdb.user:snodgrass23/-rev/1-0c12add5b0247247790d03bc8f71643b
+ERR! {"error":"unauthorized","reason":"Name or password is incorrect."}
+ERR!     at /usr/local/lib/node_modules/npm/lib/utils/npm-registry-client/adduser.js:78:13
+ERR!     at cb (/usr/local/lib/node_modules/npm/lib/utils/npm-registry-client/request.js:38:9)
+ERR!     at IncomingMessage.<anonymous> (/usr/local/lib/node_modules/npm/lib/utils/npm-registry-client/request.js:197:14)
+ERR!     at IncomingMessage.emit (events.js:81:20)
+ERR!     at HTTPParser.onMessageComplete (http.js:133:23)
+ERR!     at Socket.ondata (http.js:1213:22)
+ERR!     at Socket._onReadable (net.js:681:27)
+ERR!     at IOWatcher.onReadable [as callback] (net.js:177:10)
+ERR! Report this *entire* log at:
+ERR!     <http://github.com/isaacs/npm/issues>
+ERR! or email it to:
+ERR!     <npm-@googlegroups.com>
+ERR! 
+ERR! System Darwin 11.0.0
+ERR! command "node" "/usr/local/bin/npm" "adduser"
+verbose exit [ 1, true ]
