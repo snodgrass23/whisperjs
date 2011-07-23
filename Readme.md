@@ -6,15 +6,11 @@
 
 npm:
 
-    $ npm install express-resource
+    $ npm install whisperjs
 
 ## Usage
 
- To get started simply `require('whisperjs)`, and this module will monkey-patch Express, enabling resourceful routing by providing the `app.resource()` method. A "resource" is simply an object, which defines one of more of the supported "actions" listed below:
-
-    exports.index = function(req, res){
-      res.send('forum index');
-    };
+ To get started simply `require('whisperjs)`
 
 ## Running Tests
 
