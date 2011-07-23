@@ -147,7 +147,7 @@ Whisper.prototype.makeRequest = function(data, callback) {
                     callback(null, props);
                   },
           render: function() {
-                    callbacl(null, {}})
+                    callback(null, {})
                   } 
         }
         
@@ -201,9 +201,6 @@ Whisper.prototype.findRoute = function(method, path, callback) {
   
   var routes = this.allroutes[method.toLowerCase()];
   
-  //if (method == 'post')
-  //  console.log('routes', routes)
-  
   for (var r in routes) {
     if (routes.hasOwnProperty(r)) {
       if (path.match(routes[r].regexp)) {
@@ -214,8 +211,8 @@ Whisper.prototype.findRoute = function(method, path, callback) {
   }
   
   if (route == null) {
-    console.log("couldn't find -> " + method + "::" + path)
-    console.log(routes);
+    //console.log("couldn't find -> " + method + "::" + path)
+    //console.log(routes);
   }
 
   callback(route);

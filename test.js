@@ -26,10 +26,10 @@ var server = {
 }
 
 // initialize whisper module
-require('../whisper').init(server)
+require('./index.js').init(server)
 
 // define whisper object
-var Whisper = require('../whisper')
+var Whisper = require('./index.js')
 
 // setup tests
 vows.describe('whisper module test').addBatch({
