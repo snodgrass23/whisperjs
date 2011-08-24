@@ -3,8 +3,11 @@
   "version": "0.0.4",
   "description": "HTTP Request functionality from within a node.js application using preset expresss routes and middleware",
   "keywords": ["framework", "web", "middleware", "whisper"],
-  "repository": "git://github.com/snodgrass23/whisperjs.git",
   "author": "Jim Snodgrass <snodgrass23@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/snodgrass23/whisperjs.git" 
+  },
   "dependencies": {
     "async":"=0.1.9"  
   },
