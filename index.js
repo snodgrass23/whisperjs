@@ -11,6 +11,9 @@
  */
 
 
+var async = require("async");
+
+
 function Whisper() {}
 
 
@@ -35,46 +38,43 @@ Whisper.prototype.send = function(requests, callback) {
   if (Array.isArray(requests)) {
     
     // define final results
-    var results = {};
-    var numresults = 0;
+    var results = [];
     
-    recurse();
-    
-    // recursive function to loop through results
-    function recurse() {
-      
-      // check if all results are in
-      if (numresults === requests.length) {
-        
-        // send back results
+    async.forEach(requests, processRequest, function(err) {
+      if (err) {
+        callback(err)
+      }
+      else {
+         // send back results
         callback(null, results);
       }
+    })
+    
+    
+    // recursive function to loop through results
+    function processRequest(r, done) {
       
-      // make next request
-      else {
+      // make actual request
+      self.makeRequest(r, function(err, result) {
         
-        // set current request
-        var r = requests[numresults];
+        // set result as error if there is one
+        if (err) result = err;
         
-        // make actual request
-        self.makeRequest(r, function(err, result) {
-          
-          // set result as error if there is one
-          if (err) result = err;
-          
-          // if no sequence given, use current index
-          if (typeof r.sequence == "undefined") r.sequence = numresults;
-          
+        // if no sequence given
+        if (typeof r.sequence == "undefined") {
+          // add to result object
+          results.push(result);
+        }
+        
+        // use sequence id
+        else {
           // add to result object
           results[r.sequence] = result;
-   
-          // increment numresults counter
-          numresults++;
-          
-          // recursively call self to check for more requests
-          recurse();
-        })
-      }
+        }
+ 
+        // call done
+        done();
+      })
     }
   }
   
