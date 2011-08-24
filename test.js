@@ -67,6 +67,15 @@ vows.describe('whisper module test').addBatch({
       assert.equal(result, testReturn);
     }
   },
+  'send bundle request with invalid json in body': {
+    topic: function() {
+      var request = [{method: 'get', path: '/route/check', body: "shouldn't work"}]
+      Whisper.send(request, this.callback)
+    },
+    'should return error': function(err, result) {
+      assert.equal(result[0].indexOf("Error") > -1, true)
+    }
+  },
   'send bundle request with one item in array': {
     topic: function() {
       var request = [{method: 'get', path: '/route/check', body: null, sequence:0}]

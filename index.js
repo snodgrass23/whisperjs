@@ -125,7 +125,12 @@ Whisper.prototype.makeRequest = function(data, callback) {
          
         // req.body
         if (typeof data.body == "string" && data.body != "") {
-          req.body = JSON.parse(data.body);
+          try {
+            req.body = JSON.parse(data.body);
+          }
+          catch (e) {
+            return callback("Error parsing JSON String: " + e)
+          }
         }
         else {
           req.body = data.body;  

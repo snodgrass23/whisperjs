@@ -2,6 +2,7 @@
 ==================
 
   * added async library to run iterations through requests
+  * adding exception catching for JSON parsing
 
 
 0.0.3 / 2011-07-23 
