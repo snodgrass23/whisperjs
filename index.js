@@ -7,7 +7,7 @@
  * Returns the response from the controller using the supplied callback
  *
  * @author Jim Snodgrass jim@skookum.com
- * 
+ *
  */
 
 
@@ -24,12 +24,12 @@ function Whisper() {}
 Whisper.prototype.init = function(server, options) {
   this.options = options || {};
   this.allroutes = server.routes.routes;
-}
+};
 
 
 /**
  *
- */ 
+ */
 Whisper.prototype.send = function(requests, callback) {
    
   var self = this;
@@ -42,13 +42,13 @@ Whisper.prototype.send = function(requests, callback) {
     
     async.forEach(requests, processRequest, function(err) {
       if (err) {
-        callback(err)
+        callback(err);
       }
       else {
-         // send back results
+        // send back results
         callback(null, results);
       }
-    })
+    });
     
     
     // recursive function to loop through results
@@ -74,15 +74,15 @@ Whisper.prototype.send = function(requests, callback) {
  
         // call done
         done();
-      })
+      });
     }
   }
   
   // only one request
   else {
-    this.makeRequest(requests, callback)
+    this.makeRequest(requests, callback);
   }
-}
+};
 
 
 
@@ -115,7 +115,15 @@ Whisper.prototype.makeRequest = function(data, callback) {
         
         // fill out req params, body, query
         var req = {};
+
+        // if req user supplied add to request
+        if (data.user) req.user = data.user;
          
+        // req flash placeholder
+        req.flash = function(type, message){
+          // console.log(type, message);
+        };
+
         // req.query
         req.query = {};
         data.path.replace(
@@ -124,16 +132,16 @@ Whisper.prototype.makeRequest = function(data, callback) {
         );
          
         // req.body
-        if (typeof data.body == "string" && data.body != "") {
+        if (typeof data.body == "string" && data.body !== "") {
           try {
             req.body = JSON.parse(data.body);
           }
           catch (e) {
-            return callback("Error parsing JSON String: " + e)
+            return callback("Error parsing JSON String: " + e);
           }
         }
         else {
-          req.body = data.body;  
+          req.body = data.body;
         }
         
         // req.params
@@ -148,38 +156,43 @@ Whisper.prototype.makeRequest = function(data, callback) {
         
         // res object
         var res = {
-          send:   function(props){
-                    callback(null, props);
+          send:   function(props, code){
+                    callback(null, props, code);
                   },
-          render: function() {
-                    callback(null, {})
-                  } 
-        }
+          render: function(view, props) {
+                    callback(null, 'render', view, props);
+                  },
+          redirect: function(url) {
+                    callback(null, 'redirect', url);
+                  }
+        };
         
         // middleware iterator counter
         var currentMiddleware = 0;
+        var route_middleware = route.middleware || route.callbacks;
+        var route_callback = route.callback || route_middleware[route_middleware.length - 1];
         
         // start middleware iterations
         nextReq();
         
         // recursive function to move through middleware until final callback
         function nextReq() {
-          
+
           // all middleware has been processed, proceed to final callback
-          if (currentMiddleware === route.middleware.length) {
+          if (currentMiddleware === route_middleware.length) {
             
             // call controller with alternate res.send function
-            route.callback(req, res)
+            route_callback(req, res);
           }
           
           // run current middleware function
           else {
           
             // pass request through next route middlewar
-            route.middleware[currentMiddleware](req, res, function(){
-                currentMiddleware++;
-                nextReq();
-              })
+            route_middleware[currentMiddleware](req, res, function(){
+              currentMiddleware++;
+              nextReq();
+            });
           }
         }
       }
@@ -189,8 +202,8 @@ Whisper.prototype.makeRequest = function(data, callback) {
         callback("Route and Path splits don't match");
       }
     }
-  })
-}
+  });
+};
 
 
 /**
@@ -215,13 +228,13 @@ Whisper.prototype.findRoute = function(method, path, callback) {
     }
   }
   
-  if (route == null) {
+  if (route === null) {
     //console.log("couldn't find -> " + method + "::" + path)
     //console.log(routes);
   }
 
   callback(route);
-}
+};
 
 
-exports = module.exports = new Whisper()
+exports = module.exports = new Whisper();
