@@ -123,6 +123,9 @@ Whisper.prototype.makeRequest = function(data, callback) {
         req.flash = function(type, message){
           // console.log(type, message);
         };
+        
+        // req session placeholder
+        req.session = {};
 
         // req.query
         req.query = {};
