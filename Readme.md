@@ -1,8 +1,8 @@
 # WhisperJS
 
-  Provides access to all the routes and route middleware setup through express from other places in the application. Takes an object with three properties: method, path, body.  This can also be an array of objects to run multiple requests at once.  This is useful for bundling many ajax calls into one request or simulating requests through a socket connection.
+  Provides access to all the routes and route middleware setup through express from other places in the application. Takes an object with three properties: methos, path, body.  This can also be an array of objects to run multiple requests at once.  This is useful for bundling many ajax calls into one request or simulating requests through a socket connection.
 
-  The module will intercept the res.send, res.render, and res.redirect call from the final callback of the route (generally, the controller) and send the data back through your defined callback.
+  At this time, the module will intercept the res.send() call from the final callback of the route (generally, the controller) and send the data back through your defined callback.
 
 ## Installation
 

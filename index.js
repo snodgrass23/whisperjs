@@ -24,7 +24,6 @@ function Whisper() {}
 Whisper.prototype.init = function(server, options) {
   this.options = options || {};
   this.allroutes = server.routes.routes;
-  this.server_middleware = server.stack;
 };
 
 
@@ -41,9 +40,19 @@ Whisper.prototype.send = function(requests, callback) {
     // define final results
     var results = [];
     
+    async.forEach(requests, processRequest, function(err) {
+      if (err) {
+        callback(err);
+      }
+      else {
+        // send back results
+        callback(null, results);
+      }
+    });
+    
     
     // recursive function to loop through results
-    var processRequest = function (r, done) {
+    function processRequest(r, done) {
       
       // make actual request
       self.makeRequest(r, function(err, result) {
@@ -66,18 +75,7 @@ Whisper.prototype.send = function(requests, callback) {
         // call done
         done();
       });
-    };
-
-    async.forEach(requests, processRequest, function(err) {
-      if (err) {
-        callback(err);
-      }
-      else {
-        // send back results
-        callback(null, results);
-      }
-    });
-
+    }
   }
   
   // only one request
@@ -96,8 +94,7 @@ Whisper.prototype.send = function(requests, callback) {
  */
 Whisper.prototype.makeRequest = function(data, callback) {
   
-  var basepath = data.path.split("?")[0],
-      self = this;
+  var basepath = data.path.split("?")[0]; 
   
   this.findRoute(data.method, basepath, function(route) {
     // if route doesn't exist
@@ -114,78 +111,96 @@ Whisper.prototype.makeRequest = function(data, callback) {
       var path_pieces = route.path.split("/");
       
       // path arrays match
-      if (url_pieces[1] != path_pieces[1]) return callback("Route and Path splits don't match");
+      if (url_pieces[1] == path_pieces[1]) {
         
-      // fill out req params, body, query
-      var req = {};
+        // fill out req params, body, query
+        var req = {};
 
-      // if req user supplied add to request
-      if (data.user) req.user = data.user;
-       
-      // req flash placeholder
-      req.flash = function(type, message){
-        // console.log(type, message);
-      };
-      
-      // req session placeholder
-      req.session = {};
+        // if req user supplied add to request
+        if (data.user) req.user = data.user;
+         
+        // req flash placeholder
+        req.flash = function(type, message){
+          // console.log(type, message);
+        };
 
-      // req.query
-      req.query = {};
-      data.path.replace(
-          new RegExp("([^?=&]+)(=([^&]*))?", "g"),
-          function($0, $1, $2, $3) { req.query[$1] = $3; }
-      );
-       
-      // req.body
-      if (typeof data.body == "string" && data.body !== "") {
-        try {
-          req.body = JSON.parse(data.body);
+        // req.query
+        req.query = {};
+        data.path.replace(
+            new RegExp("([^?=&]+)(=([^&]*))?", "g"),
+            function($0, $1, $2, $3) { req.query[$1] = $3; }
+        );
+         
+        // req.body
+        if (typeof data.body == "string" && data.body !== "") {
+          try {
+            req.body = JSON.parse(data.body);
+          }
+          catch (e) {
+            return callback("Error parsing JSON String: " + e);
+          }
         }
-        catch (e) {
-          return callback("Error parsing JSON String: " + e);
+        else {
+          req.body = data.body;
+        }
+        
+        // req.params
+        req.params = {};
+        var keynum = 0;
+        for (var p in path_pieces) {
+          if (path_pieces[p].match(/^:.*/)) {
+            req.params[route.keys[keynum].name] = url_pieces[p];
+            keynum++;
+          }
+        }
+        
+        // res object
+        var res = {
+          send:   function(props, code){
+                    callback(null, props, code);
+                  },
+          render: function(view, props) {
+                    callback(null, 'render', view, props);
+                  },
+          redirect: function(url) {
+                    callback(null, 'redirect', url);
+                  }
+        };
+        
+        // middleware iterator counter
+        var currentMiddleware = 0;
+        var route_middleware = route.middleware || route.callbacks;
+        var route_callback = route.callback || route_middleware[route_middleware.length - 1];
+        
+        // start middleware iterations
+        nextReq();
+        
+        // recursive function to move through middleware until final callback
+        function nextReq() {
+
+          // all middleware has been processed, proceed to final callback
+          if (currentMiddleware === route_middleware.length) {
+            
+            // call controller with alternate res.send function
+            route_callback(req, res);
+          }
+          
+          // run current middleware function
+          else {
+          
+            // pass request through next route middlewar
+            route_middleware[currentMiddleware](req, res, function(){
+              currentMiddleware++;
+              nextReq();
+            });
+          }
         }
       }
+      
+      // error matching route and path
       else {
-        req.body = data.body;
+        callback("Route and Path splits don't match");
       }
-      
-      // req.params
-      req.params = {};
-      var keynum = 0;
-      for (var p in path_pieces) {
-        if (path_pieces[p].match(/^:.*/)) {
-          req.params[route.keys[keynum].name] = url_pieces[p];
-          keynum++;
-        }
-      }
-      
-      // res object
-      var res = {
-        send:   function(props, code){
-                  callback(null, props, code);
-                },
-        render: function(view, props) {
-                  callback(null, 'render', view, props);
-                },
-        redirect: function(url) {
-                  callback(null, 'redirect', url);
-                }
-      };
-      
-      // go through route middleware
-      var route_middleware = route.middleware || route.callbacks;
-      var route_callback = route.callback || route_middleware.pop();
-
-      async.forEach(route_middleware,
-        function(middleware, done) {
-          middleware(req, res, done);
-        },
-        function(err){
-          route_callback(req, res);
-          // console.log("done...");
-        }
-      );
     }
   });
 };
