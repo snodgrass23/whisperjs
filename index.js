@@ -124,6 +124,9 @@ Whisper.prototype.makeRequest = function(data, callback) {
           // console.log(type, message);
         };
 
+        // req session placeholder
+        req.session = {};
+
         // req.query
         req.query = {};
         data.path.replace(
