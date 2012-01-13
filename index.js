@@ -109,9 +109,14 @@ Whisper.prototype.makeRequest = function(data, callback) {
       
       var url_pieces = basepath.split("/");
       var path_pieces = route.path.split("/");
+      var express_resource_pieces = [];
+
+      if (path_pieces.length > 1 && path_pieces[1].match(/(.:format?)/)) {
+        var express_resource_pieces = path_pieces[1].split('.');
+      }
       
       // path arrays match
-      if (url_pieces[1] == path_pieces[1]) {
+      if (url_pieces[1] == path_pieces[1] || url_pieces[1] == express_resource_pieces[0] || path_pieces[0] == "*" ) {
         
         // fill out req params, body, query
         var req = {};
