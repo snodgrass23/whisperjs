@@ -23,7 +23,7 @@ function Whisper() {}
  */
 Whisper.prototype.init = function(server, options) {
   this.options = options || {};
-  this.allroutes = server.routes.routes;
+  this.allroutes = server.routes;
 };
 
 
@@ -93,8 +93,8 @@ Whisper.prototype.send = function(requests, callback) {
  * @return either a request error or result of the request
  */
 Whisper.prototype.makeRequest = function(data, callback) {
-  
-  var basepath = data.path.split("?")[0]; 
+
+  var basepath = data.path.split("?")[0];
   
   this.findRoute(data.method, basepath, function(route) {
     // if route doesn't exist
@@ -114,7 +114,7 @@ Whisper.prototype.makeRequest = function(data, callback) {
       if (url_pieces[1] == path_pieces[1]) {
         
         // fill out req params, body, query
-        var req = {};
+        var req = data.req || {};
 
         // if req user supplied add to request
         if (data.user) req.user = data.user;
@@ -129,7 +129,7 @@ Whisper.prototype.makeRequest = function(data, callback) {
         
         req.header = function() {
           return '';
-        }
+        };
 
         // req.query
         req.query = {};
@@ -160,6 +160,13 @@ Whisper.prototype.makeRequest = function(data, callback) {
             keynum++;
           }
         }
+
+        req.param = function(val, def) {
+          return  req.params && req.params[val] || 
+                  req.query && req.query[val] || 
+                  req.body && req.body[val] || 
+                  def;
+        };
         
         // res object
         var res = {
@@ -174,11 +181,12 @@ Whisper.prototype.makeRequest = function(data, callback) {
                   }
         };
         
+
         // middleware iterator counter
         var currentMiddleware = 0;
         var route_middleware = route.middleware || route.callbacks;
         var route_callback = route.callback || route_middleware[route_middleware.length - 1];
-        
+
         // start middleware iterations
         nextReq();
         
@@ -223,21 +231,16 @@ Whisper.prototype.makeRequest = function(data, callback) {
  */
 Whisper.prototype.findRoute = function(method, path, callback) {
   var route = null;
-  
-  var routes = this.allroutes[method.toLowerCase()];
-  
+
+  var routes = this.allroutes;
+
   for (var r in routes) {
     if (routes.hasOwnProperty(r)) {
-      if (path.match(routes[r].regexp)) {
+      if (path.match(routes[r].regexp) && routes[r].method == method.toLowerCase()) {
         route = routes[r];
         break;
       }
     }
-  }
-  
-  if (route === null) {
-    //console.log("couldn't find -> " + method + "::" + path)
-    //console.log(routes);
   }
 
   callback(route);
