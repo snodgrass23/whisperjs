@@ -125,16 +125,20 @@ Whisper.prototype.makeRequest = function(data, callback) {
         if (data.user) req.user = data.user;
          
         // req flash placeholder
-        req.flash = function(type, message){
-          // console.log(type, message);
-        };
+        if (typeof req.flash === 'undefined') {
+            req.flash = function(type, message){
+              // console.log(type, message);
+            };
+        }
 
         // req session placeholder
         req.session = {};
         
-        req.header = function() {
-          return '';
-        };
+        if (typeof req.header === 'undefined') {
+            req.header = function() {
+              return '';
+            };
+        }
 
         // req.query
         req.query = {};
