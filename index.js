@@ -182,6 +182,9 @@ Whisper.prototype.makeRequest = function(data, callback) {
           send:   function(props, code){
                     callback(null, props, code);
                   },
+          end:   function(props){
+                    callback(null, props);
+                  },
           render: function(view, props) {
                     callback(null, 'render', view, props);
                   },
