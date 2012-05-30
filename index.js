@@ -11,108 +11,94 @@
  */
 
 
-var async = require("async");
+var async = require("async"),
+    middleware_exclusions = ["router","errorHandler"];
 
 
 function Whisper() {}
 
 
-/**
- * Initialize new instance
- *
- */
-Whisper.prototype.init = function(server, options) {
-  this.options = options || {};
-  this.allroutes = server.routes;
-};
 
-
-/**
- *
- */
-Whisper.prototype.send = function(requests, callback) {
-   
-  var self = this;
-   
-  // an array of mulitple requests
-  if (Array.isArray(requests)) {
-    
-    // define final results
-    var results = [];
-    
-    async.forEach(requests, processRequest, function(err) {
-      if (err) {
-        callback(err);
-      }
-      else {
-        // send back results
-        callback(null, results);
-      }
-    });
-    
-    
-    // recursive function to loop through results
-    function processRequest(r, done) {
-      
-      // make actual request
-      self.makeRequest(r, function(err, result) {
-        
-        // set result as error if there is one
-        if (err) result = err;
-        
-        // if no sequence given
-        if (typeof r.sequence == "undefined") {
-          // add to result object
-          results.push(result);
-        }
-        
-        // use sequence id
-        else {
-          // add to result object
-          results[r.sequence] = result;
-        }
- 
-        // call done
-        done();
-      });
-    }
-  }
+Whisper.prototype = {
   
-  // only one request
-  else {
-    this.makeRequest(requests, callback);
-  }
-};
+  /**
+   * Initialize instance vars
+   */
+  init: function(server, options) {
+    this.options = options || {};
+    this.server = server;
+    this.middleware_stack = this.buildStack(server.stack, middleware_exclusions);
+  },
 
 
-
-/**
- * make actual request
- *
- * @param Object data an object with all fields (method, path are required, body is optional)
- * @return either a request error or result of the request
- */
-Whisper.prototype.makeRequest = function(data, callback) {
-
-  var basepath = data.path.split("?")[0];
-  
-  this.findRoute(data.method, basepath, function(route) {
-    // if route doesn't exist
-    if (route === null) {
+  /**
+   * send request or array of requests
+   */
+  send: function(requests, callback) {
+     
+    var self = this;
+     
+    // an array of mulitple requests
+    if (Array.isArray(requests)) {
       
-      // send back error
-      callback("Couldn't find the route -> " + data.method + "::" + data.path);
+      // define final results
+      var results = [];
+      
+      async.forEach(requests,
+        function (r, done) {
+        
+          // make actual request
+          self.makeRequest(r, function(err, result) {
+            
+            // set result as error if there is one
+            if (err) result = err;
+            
+            // if no sequence given
+            if (typeof r.sequence == "undefined") results.push(result);
+            
+            // use sequence id
+            else results[r.sequence] = result;
+
+            done();
+          });
+        },
+        function(err) {
+          if (err) return callback(err);
+          callback(null, results);
+        }
+      );
     }
     
-    // route was found
+    // only one request
     else {
+      this.makeRequest(requests, callback);
+    }
+  },
+
+
+
+  /**
+   * make actual request
+   *
+   * @param Object data an object with all fields (method, path are required, body is optional)
+   * @return either a request error or result of the request
+   */
+  makeRequest: function(data, callback) {
+
+    var basepath = data.path.split("?")[0],
+        self = this;
+    
+    this.findRoute(data.method, basepath, function(route) {
+      // if route doesn't exist
+      if (route === null) return callback("Couldn't find the route -> " + data.method + "::" + data.path);
       
+        
       var url_pieces = basepath.split("/");
       var path_pieces = route.path.split("/");
       var express_resource_pieces = [];
 
       if (path_pieces.length > 1 && path_pieces[1].match(/(.:format?)/)) {
-        var express_resource_pieces = path_pieces[1].split('.');
+        express_resource_pieces = path_pieces[1].split('.');
       }
       
       // path arrays match
@@ -131,21 +117,17 @@ Whisper.prototype.makeRequest = function(data, callback) {
             };
         }
 
-        // req session placeholder
+        req.url = data.path;
         req.session = {};
+        req.headers = {host:basepath};
+        req.body = {};
+        req.params = {};
         
         if (typeof req.header === 'undefined') {
             req.header = function() {
               return '';
             };
         }
-
-        // req.query
-        req.query = {};
-        data.path.replace(
-            new RegExp("([^?=&]+)(=([^&]*))?", "g"),
-            function($0, $1, $2, $3) { req.query[$1] = $3; }
-        );
          
         // req.body
         if (typeof data.body == "string" && data.body !== "") {
@@ -161,7 +143,6 @@ Whisper.prototype.makeRequest = function(data, callback) {
         }
         
         // req.params
-        req.params = {};
         var keynum = 0;
         for (var p in path_pieces) {
           if (path_pieces[p].match(/^:.*/)) {
@@ -179,6 +160,7 @@ Whisper.prototype.makeRequest = function(data, callback) {
         
         // res object
         var res = {
+          setHeader: function() {},
           send:   function(props, code){
                     callback(null, props, code);
                   },
@@ -193,69 +175,82 @@ Whisper.prototype.makeRequest = function(data, callback) {
                   }
         };
         
-
-        // middleware iterator counter
-        var currentMiddleware = 0;
         var route_middleware = route.middleware || route.callbacks;
         var route_callback = route.callback || route_middleware[route_middleware.length - 1];
 
-        // start middleware iterations
-        nextReq();
-        
-        // recursive function to move through middleware until final callback
-        function nextReq() {
+        // add on app middleware
+        route_middleware = self.middleware_stack.concat(route_middleware);
 
-          // all middleware has been processed, proceed to final callback
-          if (currentMiddleware === route_middleware.length) {
-            
-            // call controller with alternate res.send function
-            route_callback(req, res);
-          }
-          
-          // run current middleware function
-          else {
-          
-            // pass request through next route middlewar
-            route_middleware[currentMiddleware](req, res, function(){
-              currentMiddleware++;
-              nextReq();
-            });
-          }
-        }
+        // start middleware iterations
+        self.nextReq(route_middleware, req, res, 0);
       }
       
       // error matching route and path
       else {
         callback("Route and Path splits don't match");
       }
+    });
+  },
+
+  // recursive function to move through middleware until final callback
+  nextReq: function(middleware, req, res, index) {
+    var self = this;
+
+    // all middleware has been processed, proceed to final callback
+    if (index === middleware.length) route_callback(req, res);
+  
+    // run current middleware function
+    else {
+      // console.log("running: ", middleware[index]);
+      middleware[index](req, res, function(){
+        self.nextReq(middleware, req, res, index+1);
+      });
     }
-  });
-};
+  },
 
 
-/**
- * Find a matching route
- *
- * @param String method the type of request (get, post, put, delete)
- * @param String path the path to match
- * @param Function callback
- * @return matching path if found, else null
- */
-Whisper.prototype.findRoute = function(method, path, callback) {
-  var route = null;
+  /**
+   * Find a matching route
+   *
+   * @param String method the type of request (get, post, put, delete)
+   * @param String path the path to match
+   * @param Function callback
+   * @return matching path if found, else null
+   */
+  findRoute: function(method, path, callback) {
+    var route = null,
+        routes = this.server.routes;
 
-  var routes = this.allroutes;
-
-  for (var r in routes) {
-    if (routes.hasOwnProperty(r)) {
-      if (path.match(routes[r].regexp) && routes[r].method == method.toLowerCase()) {
-        route = routes[r];
-        break;
+    for (var r in routes) {
+      if (routes.hasOwnProperty(r)) {
+        if (path.match(routes[r].regexp) && routes[r].method == method.toLowerCase()) {
+          route = routes[r];
+          break;
+        }
       }
     }
+
+    callback(route);
+  },
+
+
+  buildStack: function(stack, exclusions) {
+    var middleware = [],
+        regex = /(function )(\b.*)(\()/;
+
+    for (var i = 0; i < stack.length; i++) {
+      var function_string = stack[i].handle + "",
+          function_name = function_string.match(regex);
+
+      if (!function_name || exclusions.indexOf(function_name[2]) < 0) {
+        middleware.push(stack[i].handle);
+      }
+    }
+
+    return middleware;
   }
 
-  callback(route);
+
 };
 
 

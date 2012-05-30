@@ -63,16 +63,6 @@ The returned result will be an object containing all of results in the same orde
      */
 
 
-## Running Tests
-
-The test is built in vowsjs (http://vowsjs.org/). First make sure you have vow installed:
-
-    $ npm install vows -g
-
-Then run the tests:
-
-    $ vows test.js
-
 ## License
 
     The MIT License
