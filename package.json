@@ -1,6 +1,6 @@
 {
   "name": "whisperjs",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "HTTP Request functionality from within a node.js application using preset expresss routes and middleware",
   "keywords": ["framework", "web", "middleware", "whisper"],
   "author": "Jim Snodgrass <snodgrass23@gmail.com>",

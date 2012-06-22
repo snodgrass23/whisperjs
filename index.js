@@ -27,7 +27,9 @@ Whisper.prototype = {
   init: function(server, options) {
     this.options = options || {};
     this.server = server;
-    this.middleware_stack = this.buildStack(server.stack, middleware_exclusions);
+    var middleware = this.buildStack(server.stack, middleware_exclusions);
+    this.middleware_stack = middleware.stack;
+    this.error_handlers = middleware.error_handlers;
   },
 
 
@@ -236,18 +238,27 @@ Whisper.prototype = {
 
   buildStack: function(stack, exclusions) {
     var middleware = [],
-        regex = /(function )(\b.*)(\()/;
+        error_handlers = [],
+        regex = /(function )(\b.*)(\()/,
+        err_regex = /(function )(.*)(\(err,\s*req,\s*res)(.*\{)/;
 
     for (var i = 0; i < stack.length; i++) {
       var function_string = stack[i].handle + "",
-          function_name = function_string.match(regex);
+          function_name = function_string.match(regex),
+          is_error = err_regex.test(function_string);
 
       if (!function_name || exclusions.indexOf(function_name[2]) < 0) {
-        middleware.push(stack[i].handle);
+        if (is_error) error_handlers.push(stack[i].handle);
+        else middleware.push(stack[i].handle);
       }
     }
 
-    return middleware;
+    console.log('num error handlers: ', error_handlers.length);
+
+    return {
+      stack:middleware,
+      error_handlers: error_handlers
+    };
   }
 
 
