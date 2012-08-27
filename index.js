@@ -253,7 +253,7 @@ Whisper.prototype = {
       }
     }
 
-    console.log('num error handlers: ', error_handlers.length);
+    // console.log('num error handlers: ', error_handlers.length);
 
     return {
       stack:middleware,

@@ -1,0 +1,99 @@
+info it worked if it ends with ok
+verbose cli [ 'node', '/usr/local/bin/npm', 'publish' ]
+info using npm@1.1.16
+info using node@v0.6.17
+verbose config file /Users/snodgrass23/.npmrc
+verbose config file /usr/local/etc/npmrc
+verbose config file /usr/local/lib/node_modules/npm/npmrc
+verbose publish [ '.' ]
+verbose caching /Users/snodgrass23/Sites/node/whisperjs/package.json
+verbose loadDefaults whisperjs@0.1.8
+info prepublish whisperjs@0.1.8
+verbose cache add [ '.', null ]
+silly cache add: name, spec, args [ undefined, '.', [ '.', null ] ]
+verbose parsed url { pathname: '.', path: '.', href: '.' }
+verbose caching package.json
+verbose loadDefaults whisperjs@0.1.8
+verbose tar.pack [ '/var/folders/fw/nq70g3ys25zc00pfwzmzcfx40000gn/T/npm-1346098720853/1346098720853-0.7240372507367283/tmp.tgz',
+verbose tar.pack   '.' ]
+verbose tarball /var/folders/fw/nq70g3ys25zc00pfwzmzcfx40000gn/T/npm-1346098720853/1346098720853-0.7240372507367283/tmp.tgz
+verbose folder .
+verbose unpack /var/folders/fw/nq70g3ys25zc00pfwzmzcfx40000gn/T/npm-1346098720853/1346098720853-0.7240372507367283/tmp.tgz
+silly gunzTarPerm modes [ '755', '644' ]
+silly extracting entry package.json
+silly extracting entry index.js
+silly extracting entry test.js
+silly extracting entry History.md
+silly extracting entry Readme.md
+verbose caching /var/folders/fw/nq70g3ys25zc00pfwzmzcfx40000gn/T/npm-1346098720853/1346098720853-0.7240372507367283/package/package.json
+verbose loadDefaults whisperjs@0.1.8
+verbose from cache /var/folders/fw/nq70g3ys25zc00pfwzmzcfx40000gn/T/npm-1346098720853/1346098720853-0.7240372507367283/package/package.json
+verbose tar.pack [ '/Users/snodgrass23/.npm/whisperjs/0.1.8/package.tgz',
+verbose tar.pack   '/var/folders/fw/nq70g3ys25zc00pfwzmzcfx40000gn/T/npm-1346098720853/1346098720853-0.7240372507367283/package' ]
+verbose tarball /Users/snodgrass23/.npm/whisperjs/0.1.8/package.tgz
+verbose folder /var/folders/fw/nq70g3ys25zc00pfwzmzcfx40000gn/T/npm-1346098720853/1346098720853-0.7240372507367283/package
+verbose unpack /Users/snodgrass23/.npm/whisperjs/0.1.8/package.tgz
+silly gunzTarPerm modes [ '755', '644' ]
+silly extracting entry package.json
+silly extracting entry index.js
+silly extracting entry test.js
+silly extracting entry History.md
+silly extracting entry Readme.md
+verbose caching /Users/snodgrass23/.npm/whisperjs/0.1.8/package/package.json
+verbose loadDefaults whisperjs@0.1.8
+silly updated sha bytes 4924
+info shasum 8239c8d2d89a80340856a3e92569f3fe4ca6462a
+info shasum /Users/snodgrass23/.npm/whisperjs/0.1.8/package.tgz
+verbose from cache /Users/snodgrass23/.npm/whisperjs/0.1.8/package/package.json
+verbose chmod /Users/snodgrass23/.npm/whisperjs/0.1.8/package.tgz 644
+verbose chown [ '/Users/snodgrass23/.npm/whisperjs/0.1.8/package.tgz',
+verbose chown   501,
+verbose chown   20 ]
+silly publish { name: 'whisperjs',
+silly publish   version: '0.1.8',
+silly publish   description: 'HTTP Request functionality from within a node.js application using preset expresss routes and middleware',
+silly publish   keywords: [ 'framework', 'web', 'middleware', 'whisper' ],
+silly publish   author: { name: 'Jim Snodgrass', email: 'snodgrass23@gmail.com' },
+silly publish   repository: 
+silly publish    { type: 'git',
+silly publish      url: 'git://github.com/snodgrass23/whisperjs.git' },
+silly publish   dependencies: { async: '=0.1.9' },
+silly publish   devDependencies: { express: '2.3.x' },
+silly publish   main: 'index',
+silly publish   engines: { node: '>= 0.4.0' },
+silly publish   _npmUser: { name: 'snodgrass23', email: 'snodgrass23@gmail.com' },
+silly publish   _id: 'whisperjs@0.1.8',
+silly publish   optionalDependencies: {},
+silly publish   _engineSupported: true,
+silly publish   _npmVersion: '1.1.16',
+silly publish   _nodeVersion: 'v0.6.17',
+silly publish   _defaultsLoaded: true,
+silly publish   dist: 
+silly publish    { shasum: '8239c8d2d89a80340856a3e92569f3fe4ca6462a',
+silly publish      tarball: 'http://registry.npmjs.org/whisperjs/-/whisperjs-0.1.8.tgz' } }
+verbose raw, before any munging whisperjs
+verbose url resolving [ 'https://registry.npmjs.org/', './whisperjs' ]
+verbose url resolved https://registry.npmjs.org/whisperjs
+http PUT https://registry.npmjs.org/whisperjs
+http 409 https://registry.npmjs.org/whisperjs
+verbose raw, before any munging whisperjs
+verbose url resolving [ 'https://registry.npmjs.org/', './whisperjs' ]
+verbose url resolved https://registry.npmjs.org/whisperjs
+http GET https://registry.npmjs.org/whisperjs
+http 200 https://registry.npmjs.org/whisperjs
+info Already published whisperjs@0.1.8
+verbose uploading bin dists []
+ERR! publish fail Cannot publish over existing version.
+ERR! publish fail Bump the 'version' field, set the --force flag, or
+ERR! publish fail     npm unpublish 'whisperjs@0.1.8'
+ERR! publish fail and try again
+ERR! 
+ERR! System Darwin 12.0.0
+ERR! command "node" "/usr/local/bin/npm" "publish"
+ERR! cwd /Users/snodgrass23/Sites/node/whisperjs
+ERR! node -v v0.6.17
+ERR! npm -v 1.1.16
+ERR! code EPUBLISHCONFLICT
+ERR! message publish fail
+ERR! errno {}
+verbose exit [ 1, true ]
