@@ -12,6 +12,7 @@
 
 
 var async = require("async"),
+    _ = require('underscore'),
     middleware_exclusions = ["router","errorHandler"];
 
 
@@ -90,152 +91,132 @@ Whisper.prototype = {
     var basepath = data.path.split("?")[0],
         self = this;
     
-    this.findRoute(data.method, basepath, function(route) {
+    this.findRoutes(data.method, basepath, function(routes) {
       // if route doesn't exist
-      if (route === null) return callback("Couldn't find the route -> " + data.method + "::" + data.path);
+      if (routes.length === 0) return callback("Couldn't find the route -> " + data.method + "::" + data.path);
       
         
       var url_pieces = basepath.split("/");
-      var path_pieces = route.path.split("/");
       var express_resource_pieces = [];
+        
+      // fill out req params, body, query
+      var req = data.req || {};
 
-      if (path_pieces.length > 1 && path_pieces[1].match(/(.:format?)/)) {
-        express_resource_pieces = path_pieces[1].split('.');
+      // if req user supplied add to request
+      if (data.user) req.user = data.user;
+       
+      // req flash placeholder
+      if (typeof req.flash === 'undefined') {
+        req.flash = function(type, message){
+          // console.log(type, message);
+        };
+      }
+
+      req.url = data.path;
+      req.session = {};
+      req.headers = {host:basepath};
+      req.body = {};
+      req.params = {};
+      
+      if (typeof req.header === 'undefined') {
+        req.header = function() {
+          return '';
+        };
+      }
+       
+      // req.body
+      if (typeof data.body == "string" && data.body !== "") {
+        try {
+          req.body = JSON.parse(data.body);
+        }
+        catch (e) {
+          return callback("Error parsing JSON String: " + e);
+        }
+      }
+      else {
+        req.body = data.body;
       }
       
-      // path arrays match
-      if (url_pieces[1] == path_pieces[1] || url_pieces[1] == express_resource_pieces[0] || path_pieces[0] == "*" ) {
-        
-        // fill out req params, body, query
-        var req = data.req || {};
+      // req.params
+      var keynum = 0;
 
-        // if req user supplied add to request
-        if (data.user) req.user = data.user;
-         
-        // req flash placeholder
-        if (typeof req.flash === 'undefined') {
-            req.flash = function(type, message){
-              // console.log(type, message);
-            };
-        }
-
-        req.url = data.path;
-        req.session = {};
-        req.headers = {host:basepath};
-        req.body = {};
-        req.params = {};
-        
-        if (typeof req.header === 'undefined') {
-            req.header = function() {
-              return '';
-            };
-        }
-         
-        // req.body
-        if (typeof data.body == "string" && data.body !== "") {
-          try {
-            req.body = JSON.parse(data.body);
-          }
-          catch (e) {
-            return callback("Error parsing JSON String: " + e);
-          }
-        }
-        else {
-          req.body = data.body;
-        }
-        
-        // req.params
-        var keynum = 0;
+      // get params for each route
+      _.each(routes, function(r) {
+        var path_pieces = r.path.split("/");
         for (var p in path_pieces) {
           if (path_pieces[p].match(/^:.*/)) {
-            req.params[route.keys[keynum].name] = url_pieces[p];
+            req.params[r.keys[keynum].name] = url_pieces[p];
             keynum++;
           }
         }
+      }),
 
-        req.param = function(val, def) {
-          return  req.params && req.params[val] || 
-                  req.query && req.query[val] || 
-                  req.body && req.body[val] || 
-                  def;
-        };
-        
-        // res object
-        var res = {
-          setHeader: function() {},
-          send:   function(props, code){
-                    callback(null, props, code);
-                  },
-          end:   function(props){
-                    callback(null, props);
-                  },
-          render: function(view, props) {
-                    callback(null, 'render', view, props);
-                  },
-          redirect: function(url) {
-                    callback(null, 'redirect', url);
-                  }
-        };
-        
-        var route_middleware = route.middleware || route.callbacks;
-        var route_callback = route.callback || route_middleware[route_middleware.length - 1];
-
-        // add on app middleware
-        route_middleware = self.middleware_stack.concat(route_middleware);
-
-        // start middleware iterations
-        self.nextReq(route_middleware, req, res, 0);
-      }
+      req.param = function(val, def) {
+        return  req.params && req.params[val] || 
+                req.query && req.query[val] || 
+                req.body && req.body[val] || 
+                def;
+      };
       
-      // error matching route and path
-      else {
-        callback("Route and Path splits don't match");
-      }
-    });
-  },
+      // res object
+      var res = {
+        setHeader: function() {},
+        send:   function(props, code){
+                  callback(null, props, code);
+                },
+        end:   function(props){
+                  callback(null, props);
+                },
+        render: function(view, props) {
+                  callback(null, 'render', view, props);
+                },
+        redirect: function(url) {
+                  callback(null, 'redirect', url);
+                }
+      };
 
-  // recursive function to move through middleware until final callback
-  nextReq: function(middleware, req, res, index) {
-    var self = this;
-
-    // all middleware has been processed, proceed to final callback
-    if (index === middleware.length) route_callback(req, res);
-  
-    // run current middleware function
-    else {
-      // console.log("running: ", middleware[index]);
-      middleware[index](req, res, function(){
-        self.nextReq(middleware, req, res, index+1);
+      // go through app middleware
+      async.forEach(self.middleware_stack, function(m, done) {
+        m(req, res, done);
+      }, function() {
+        // console.log("done with app middleware");
       });
-    }
+
+      // iterate through matching routes
+      _.each(routes, function(route) {
+
+        // run route callbacks
+        async.forEach(route.callbacks, function(cb, done) {
+          cb(req, res, done);
+        }, function() {
+          // console.log("finishing route: " + route.path);
+        });
+      });
+    });
   },
 
 
   /**
-   * Find a matching route
+   * Find a matching routes
    *
    * @param String method the type of request (get, post, put, delete)
    * @param String path the path to match
    * @param Function callback
    * @return matching path if found, else null
    */
-  findRoute: function(method, path, callback) {
-    var route = null,
-        routes = this.server.routes;
+  findRoutes: function(method, path, callback) {
 
-    for (var r in routes) {
-      if (routes.hasOwnProperty(r)) {
-        if (path.match(routes[r].regexp) && routes[r].method == method.toLowerCase()) {
-          route = routes[r];
-          break;
-        }
-      }
+    var routes = [],
+        allroutes = this.server.routes[method];
+
+    for (var i = 0, il = allroutes.length; i < il ; i++) {
+      if (path.match(allroutes[i].regexp)) routes.push(allroutes[i]);
     }
 
-    callback(route);
+    callback(routes);
   },
 
-
+  // get application middleware stack excluding router and error handlers
   buildStack: function(stack, exclusions) {
     var middleware = [],
         error_handlers = [],
