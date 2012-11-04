@@ -176,7 +176,7 @@ Whisper.prototype = {
       };
 
       // go through app middleware
-      async.forEach(self.middleware_stack, function(m, done) {
+      async.forEachSeries(self.middleware_stack, function(m, done) {
         m(req, res, done);
       }, function() {
         // console.log("done with app middleware");
@@ -186,7 +186,7 @@ Whisper.prototype = {
       _.each(routes, function(route) {
 
         // run route callbacks
-        async.forEach(route.callbacks, function(cb, done) {
+        async.forEachSeries(route.callbacks, function(cb, done) {
           cb(req, res, done);
         }, function() {
           // console.log("finishing route: " + route.path);
