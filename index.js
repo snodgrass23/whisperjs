@@ -216,7 +216,7 @@ Whisper.prototype = {
   findRoutes: function(method, path, callback) {
 
     var routes = [],
-        allroutes = this.server.routes[method];
+        allroutes = this.server.routes[method.toLowerCase()];
 
     for (var i = 0, il = allroutes.length; i < il ; i++) {
       if (path.match(allroutes[i].regexp)) routes.push(allroutes[i]);
