@@ -188,8 +188,17 @@ Whisper.prototype = {
         // run route callbacks
         async.forEachSeries(route.callbacks, function(cb, done) {
           cb(req, res, done);
-        }, function() {
-          // console.log("finishing route: " + route.path);
+        }, function(err) {
+          
+          // console.log("finishing route: " + route.path, err);
+          if (err) {
+
+            // iterate through error handlers if err in previous callbacks
+            async.forEachSeries(self.error_handlers, function(eh, done) {
+              eh(err, req, res, done);
+            }, function(err) {});
+
+          }
         });
       });
     });
